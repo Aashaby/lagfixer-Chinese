@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
     tags: [ "*" ]
   pull_request:
-  workflow_dispatch:
 
 jobs:
   build:
@@ -70,17 +69,36 @@ jobs:
         run: |
           ls -la build/libs || true
 
+      - name: Resolve release tag from Gradle version
+        id: release_tag
+        if: success() && startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          VERSION=$(./gradlew -q properties --no-daemon | awk -F': ' '/^version: /{print $2; exit}')
+          if [ -z "$VERSION" ]; then
+            echo "Failed to resolve Gradle version" >&2
+            exit 1
+          fi
+
+          REF_TAG="${{ github.ref_name }}"
+          if [ "$REF_TAG" != "$VERSION" ] && [ "$REF_TAG" != "v$VERSION" ]; then
+            echo "Tag '$REF_TAG' does not match Gradle version '$VERSION'" >&2
+            exit 1
+          fi
+
+          echo "value=$REF_TAG" >> "$GITHUB_OUTPUT"
+
       - name: Verify LagFixer.jar exists
-        if: startsWith(github.ref, 'refs/tags/')
+        if: success() && startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           test -f build/libs/LagFixer.jar
 
       - name: Create GitHub Release (tag)
-        if: startsWith(github.ref, 'refs/tags/')
+        if: success() && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.release_tag.outputs.value }}
           files: build/libs/LagFixer.jar
 
       - name: Upload artifact
