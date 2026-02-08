@@ -27,8 +27,8 @@ import java.util.function.Consumer;
 public abstract class AbstractMenu implements Listener {
     private static final @Getter ItemStack border = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).setName("&8#").build();
     private static final @Getter ItemStack filler = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("&8#").build();
-    private static final @Getter ItemStack enabled;
     private static final @Getter ItemStack disabled;
+    private static final @Getter ItemStack enabled;
     private static final @Getter ItemStack back;
 
     static {
