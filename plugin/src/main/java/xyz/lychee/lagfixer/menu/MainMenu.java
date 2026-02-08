@@ -56,8 +56,10 @@ public class MainMenu extends AbstractMenu {
         ModuleManager moduleManager = ModuleManager.getInstance();
 
         i1.setLore(
-                " &8{*} &7Loaded modules: &e" + moduleManager.getModules().values().stream().filter(AbstractModule::isLoaded).count() + "&8/&e" + moduleManager.getModules().size(),
-                " &8{*} &7Version: &e" + this.getPlugin().getDescription().getVersion(),
+                // 汉化文本Loaded modules:
+                " &8{*} &7已加载模块: &e" + moduleManager.getModules().values().stream().filter(AbstractModule::isLoaded).count() + "&8/&e" + moduleManager.getModules().size(),
+                // 汉化文本Version:
+                " &8{*} &7版本: &e" + this.getPlugin().getDescription().getVersion(),
                 "",
                 // 汉化文本Click to modify configuration!
                 "&e点击修改配置！"
@@ -65,11 +67,16 @@ public class MainMenu extends AbstractMenu {
 
         AbstractMonitor monitor = support.getMonitor();
         i2.setLore(
-                " &8{*} &7Tps: &e" + monitor.getTps(),
-                " &8{*} &7Mspt: &e" + monitor.getMspt(),
-                " &8{*} &7Memory: &e" + monitor.getRamUsed() + "&8/&e" + monitor.getRamTotal() + "&8/&e" + monitor.getRamMax() + " MB",
-                " &8{*} &7Cpu process: &e" + monitor.getCpuProcess() + "&f%",
-                " &8{*} &7Cpu system: &e" + monitor.getCpuSystem() + "&f%",
+                // 汉化文本Tps:
+                " &8{*} &7TPS: &e" + monitor.getTps(),
+                // 汉化文本Mspt:
+                " &8{*} &7MSPT: &e" + monitor.getMspt(),
+                // 汉化文本Memory:
+                " &8{*} &7内存: &e" + monitor.getRamUsed() + "&8/&e" + monitor.getRamTotal() + "&8/&e" + monitor.getRamMax() + " MB",
+                // 汉化文本Cpu process:
+                " &8{*} &7CPU 进程: &e" + monitor.getCpuProcess() + "&f%",
+                // 汉化文本Cpu system:
+                " &8{*} &7CPU 系统: &e" + monitor.getCpuSystem() + "&f%",
                 "",
                 // 汉化文本Click to open hardware menu!
                 "&e点击打开硬件菜单！"
@@ -86,14 +93,22 @@ public class MainMenu extends AbstractMenu {
         }
 
         i3.setLore(
-                " &8{*} &7Chunks: &e" + chunks,
-                " &8{*} &7Entities: &e" + support.getEntities(),
-                " &8{*} &7Creatures: &e" + support.getCreatures(),
-                " &8{*} &7Items: &e" + support.getItems(),
-                " &8{*} &7Projectiles: &e" + support.getProjectiles(),
-                " &8{*} &7Vehicles: &e" + support.getVehicles(),
-                " &8{*} &7Tile entities: &e" + tiles,
-                " &8{*} &7Players: &e" + Bukkit.getOnlinePlayers().size() + "&8/&e" + Bukkit.getMaxPlayers(),
+                // 汉化文本Chunks:
+                " &8{*} &7区块: &e" + chunks,
+                // 汉化文本Entities:
+                " &8{*} &7实体: &e" + support.getEntities(),
+                // 汉化文本Creatures:
+                " &8{*} &7生物: &e" + support.getCreatures(),
+                // 汉化文本Items:
+                " &8{*} &7物品: &e" + support.getItems(),
+                // 汉化文本Projectiles:
+                " &8{*} &7抛射物: &e" + support.getProjectiles(),
+                // 汉化文本Vehicles:
+                " &8{*} &7载具: &e" + support.getVehicles(),
+                // 汉化文本Tile entities:
+                " &8{*} &7方块实体: &e" + tiles,
+                // 汉化文本Players:
+                " &8{*} &7玩家: &e" + Bukkit.getOnlinePlayers().size() + "&8/&e" + Bukkit.getMaxPlayers(),
                 "",
                 // 汉化文本Click to open cleaner menu!
                 "&e点击打开清理菜单！"

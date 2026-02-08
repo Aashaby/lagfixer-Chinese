@@ -288,7 +288,8 @@ public class HardwareMenu extends AbstractMenu {
         prevBytesSent = currentSent;
         prevBytesRecv = currentRecv;
 
-        return String.format("&a▲&f%s/s &c▼&f%s/s", FormatUtil.formatBytesDecimal((long) sentSpeed), FormatUtil.formatBytesDecimal((long) recvSpeed));
+        // 汉化文本&a▲&f%s/s &c▼&f%s/s
+        return String.format("&a▲&f%s每秒 &c▼&f%s每秒", FormatUtil.formatBytesDecimal((long) sentSpeed), FormatUtil.formatBytesDecimal((long) recvSpeed));
     }
 
     @Override
@@ -299,6 +300,7 @@ public class HardwareMenu extends AbstractMenu {
         return MenuCommand.getInstance().getMainMenu();
     }
 
+    // ...
     @Getter
     @Setter
     private static class HardwareData {

@@ -37,7 +37,8 @@ public class TimingUtil {
     }
 
     public String toString() {
-        return this.getExecutingTime() + "ms (" + this.getExecutingNanoTime() + "ns)";
+        // 汉化文本ms (ns)
+        return this.getExecutingTime() + "毫秒 (" + this.getExecutingNanoTime() + "纳秒)";
     }
 
     public long getStartTime() {
