@@ -7,22 +7,22 @@
 #░╚══════╝╚═╝░░╚═╝░╚═════╝░░░╚═╝░░░░░╚═╝╚═╝░░╚═╝╚══════╝╚═╝░░╚═╝░
 #░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-# Some of the options below require a server restart or plugin reload.
+# 下方部分选项需要重启服务器或重载插件后才会生效。
 main:
   prefix: "&8[&e&l⚡&8] "
-  # Displays LagFixer version info on hover.
+  # 悬停时显示 LagFixer 版本信息。
   prefix_hover: true
-  # Multithread synchronization has not been thoroughly tested.
+  # 多线程同步尚未经过充分测试。
   threads: 1
-  # Update interval (in seconds) for TPS, MSPT, CPU, and other metrics.
+  # TPS、MSPT、CPU 等监控数据的更新间隔（秒）。
   monitor_interval: 5
-  # Automatically reports LagFixer errors and Spark profiler to our support team.
+  # 自动向支持团队上报 LagFixer 错误与 Spark 性能分析报告。
   errors_reporter: true
 
   updater: true
-  # Displays warnings for legacy methods without support.
+  # 对不受支持的旧版方式显示警告。
   warnings: true
-  # Optimized metrics available at https://bstats.org/plugin/bukkit/LagFixer/19292.
+  # 优化统计信息地址：https://bstats.org/plugin/bukkit/LagFixer/19292。
   bStats: true
 
   command:
@@ -34,4 +34,4 @@ main:
 
   map:
     enabled: true
-    interval: 3 # Update interval (in seconds) for the map handler (/lagfixer map). Recommended to be at least twice the monitor_interval.
+    interval: 3 # 地图监视器（/lagfixer map）的更新间隔（秒）。建议至少为 monitor_interval 的两倍。

@@ -1,27 +1,27 @@
 RedstoneLimiter:
   enabled: true
-  worlds: # Use '*' to enable for all worlds.
+  worlds: # 使用 '*' 对所有世界启用。
     - '*'
   values:
     alerts: true
 
-    # Maximum ticks per chunk per second.
+    # 每个区块每秒允许的最大刻（ticks）数量。
     ticks_limit:
       redstone: 1100
-      # Total pushed blocks.
+      # 推动方块总数。
       piston: 50
 
-    # Should LagFixer break blocks upon detection?
+    # 检测到后是否由 LagFixer 破坏方块？
     break_block:
       redstone: false
       piston: false
 
     piston:
-      # Materials: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+      # 材料：https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
       push_blacklist:
         - SAND
         - RED_SAND
         - GRAVEL
 
-    # Cooldown (in ms) for levers, buttons, redstone torches, etc.
+    # 拉杆、按钮、红石火把等的冷却时间（毫秒）。
     click_cooldown: 1500

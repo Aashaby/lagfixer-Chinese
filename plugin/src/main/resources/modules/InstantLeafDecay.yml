@@ -1,11 +1,11 @@
 InstantLeafDecay:
   enabled: true
-  worlds: # Use '*' to enable for all worlds.
+  worlds: # 使用 '*' 对所有世界启用。
     - '*'
   values:
-    # Items drop when leaves decay.
+    # 树叶腐烂时掉落物品。
     drop_items: true
-    # Maximum distance from a tree trunk for leaves to decay.
+    # 树叶可腐烂的最大“离树干距离”。
     tree_distance: 7
-    # If false, leaves only decay when broken by players.
+    # 若为 false，树叶仅在玩家破坏时才会腐烂。
     leaves_decay: true

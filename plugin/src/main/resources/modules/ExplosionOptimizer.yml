@@ -3,69 +3,69 @@ ExplosionOptimizer:
   worlds:
     - '*'
   values:
-    # Limits the maximum explosion power/radius to reduce excessive destruction
+    # 限制爆炸最大威力/半径，以减少过度破坏
     yield_limit:
       enabled: false
 
-      # Maximum explosion power for all sources
-      # Higher = more destructive, Lower = less damage
-      # Default TNT yield in Minecraft is 4.0
+      # 所有爆炸源的最大爆炸威力
+      # 数值越高 = 破坏越强；数值越低 = 伤害越小
+      # Minecraft 中 TNT 默认爆炸威力为 4.0
       default: 4.0
 
-      # Explosion power limits per entity type:
-      # These override the "default" value
-      # Entity types: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
+      # 按实体类型设置爆炸威力上限：
+      # 此处会覆盖上面的 "default" 值
+      # 实体类型：https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
       per_entity:
-        - "TNT:4.0"          # TNT (most common)
-        - "TNT_MINECART:4.0" # Minecart TNT
-        - "CREEPER:3.0"      # Creepers (slightly weaker)
-        - "FIREBALL:1.0"     # Ghast fireballs
-        - "WITHER_SKULL:1.0" # Wither skull projectiles
-        - "END_CRYSTAL:6.0"  # End crystals (naturally powerful)
+        - "TNT:4.0"          # TNT（最常见）
+        - "TNT_MINECART:4.0" # TNT 矿车
+        - "CREEPER:3.0"      # 苦力怕（稍弱）
+        - "FIREBALL:1.0"     # 恶魂火球
+        - "WITHER_SKULL:1.0" # 凋灵头颅投掷物
+        - "END_CRYSTAL:6.0"  # 末影水晶（默认较强）
 
-    # Prevents chain reactions where one explosion triggers others nearby
+    # 防止连锁反应：一次爆炸引发附近其它爆炸
     anti_chain:
       enabled: true
 
-      # Prevent chain reactions:
-      prevent_tnt_chains: true      # TNT won't trigger other TNT
-      prevent_creeper_chains: false # Creepers can still trigger others
-      prevent_crystal_chains: true  # End crystals won't chain
+      # 防止连锁：
+      prevent_tnt_chains: true      # TNT 不会引爆其它 TNT
+      prevent_creeper_chains: false # 苦力怕仍可引爆其它苦力怕
+      prevent_crystal_chains: true  # 末影水晶不会连锁
 
-      # Prevent explosions from igniting TNT blocks
-      # true = explosions won't ignite TNT, false = normal behavior
+      # 防止爆炸点燃 TNT 方块
+      # true = 爆炸不会点燃 TNT；false = 正常行为
       prevent_block_ignition: true
 
-      # Radius to check for potential chain reactions (in blocks)
+      # 检测潜在连锁反应的半径（方块）
       chain_radius: 8.0
 
-      # Maximum number of explosions allowed in one chain
+      # 一条连锁中允许的最大爆炸次数
       max_chain_size: 3
 
-      # Delay before allowing new chains after an explosion (ms)
+      # 一次爆炸后，允许新的连锁前的延迟（毫秒）
       chain_cooldown: 1000
 
     management:
-      # ⚠️ WARNING: This will completely disable explosions!
-      # Enable only if you experience severe lag caused by explosions
+      # ⚠️ 警告：此选项将完全禁用爆炸！
+      # 仅在爆炸导致严重卡顿时才建议启用
       enabled: false
 
-      # Explosion types to disable:
-      cancel_block_explosions: true # Beds in Nether, etc.
-      cancel_creepers: false        # Keep creepers for gameplay
+      # 要禁用的爆炸类型：
+      cancel_block_explosions: true # 例如：下界床爆炸等
+      cancel_creepers: false        # 保留苦力怕以维持玩法
       cancel_crystals: true
       cancel_fireballs: true
       cancel_tnt: true
       cancel_wither_skulls: true
 
-      # Partial effects when explosions are disabled:
-      explosion_damage: # Damage entities but no block destruction
+      # 禁用爆炸时的部分效果：
+      explosion_damage: # 伤害实体但不破坏方块
         enabled: false
         multiplier: 2.5
-      explosion_sound: # Keep sounds for immersion
+      explosion_sound: # 保留声音以增强沉浸感
         enabled: true
         volume: 1.0
-      explosion_knockback: # Knockback but no block destruction
+      explosion_knockback: # 击退但不破坏方块
         enabled: false
         multiplier: 0.6
-        use_newton_raphson: true # Faster than Math.sqrt
+        use_newton_raphson: true # 比 Math.sqrt 更快

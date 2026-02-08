@@ -10,14 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-24.04
 
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Cache Maven local (Spigot 1.16.5)
         id: cache-spigot
@@ -60,27 +55,48 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Debug GitHub ref context
-        if: success()
-        shell: bash
-        run: |
-          echo "event_name=${{ github.event_name }}"
-          echo "ref=${{ github.ref }}"
-          echo "ref_name=${{ github.ref_name }}"
-          echo "ref_type=${{ github.ref_type }}"
-
       - name: Build and test with Gradle
         run: ./gradlew clean build --no-daemon --stacktrace --build-cache
 
-      - name: List build outputs
+      - name: Upload artifact
         if: success()
-        shell: bash
-        run: |
-          ls -la build/libs || true
+        uses: actions/upload-artifact@v4
+        with:
+          name: LagFixer
+          path: |
+            build/libs/*.jar
+            **/build/libs/*.jar
 
-      - name: Resolve release tag from Gradle version
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: LagFixer
+          path: artifacts
+
+      - name: Resolve and validate release tag
         id: release_tag
-        if: success() && github.ref_type == 'tag'
         shell: bash
         run: |
           VERSION=$(./gradlew -q properties --no-daemon | awk -F': ' '/^version: /{print $2; exit}')
@@ -98,23 +114,13 @@ jobs:
           echo "value=$REF_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Verify LagFixer.jar exists
-        if: success() && github.ref_type == 'tag'
         shell: bash
         run: |
-          test -f build/libs/LagFixer.jar
+          test -n "$(find artifacts -type f -name 'LagFixer.jar' -print -quit)"
 
-      - name: Create GitHub Release (tag)
-        if: success() && github.ref_type == 'tag'
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.value }}
-          files: build/libs/LagFixer.jar
-
-      - name: Upload artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: LagFixer
-          path: |
-            build/libs/*.jar
-            **/build/libs/*.jar
+          files: |
+            artifacts/**/LagFixer.jar

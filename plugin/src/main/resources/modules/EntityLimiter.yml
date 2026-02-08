@@ -1,9 +1,9 @@
 EntityLimiter:
   enabled: true
-  worlds: # Use '*' to enable for all worlds.
+  worlds: # 使用 '*' 对所有世界启用。
     - '*'
   values:
-    whitelist: # list of entities that will not be removed: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
+    whitelist: # 不会被移除的实体列表：https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
       - VILLAGER
       - ZOMBIE_VILLAGER
       - ENDER_DRAGON
@@ -11,12 +11,12 @@ EntityLimiter:
       - WOLF
       - CAT
 
-    ignore_models: true # If "true" the limit won't apply to entities from ModelEngine or MythicMobs
-    creatures: 15 # Animals and monsters per chunk (-1 to disable).
-    items: -1 # Dropped items per chunk (-1 to disable).
-    vehicles: 3 # Minecarts and boats per chunk (-1 to disable).
-    projectiles: 5 # Projectiles per chunk (-1 to disable).
-    reasons: # Spawn reasons: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html
+    ignore_models: true # 若为 "true"，限制不会作用于来自 ModelEngine 或 MythicMobs 的实体
+    creatures: 15 # 每个区块的动物与怪物数量上限（-1 禁用）。
+    items: -1 # 每个区块的掉落物数量上限（-1 禁用）。
+    vehicles: 3 # 每个区块的矿车与船数量上限（-1 禁用）。
+    projectiles: 5 # 每个区块的投掷物数量上限（-1 禁用）。
+    reasons: # 生成原因：https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html
       - DEFAULT
       - EGG
       - NATURAL
@@ -24,13 +24,13 @@ EntityLimiter:
       - SPAWNER_EGG
       - COMMAND
 
-    overflow_purge: # The overflow purge limits the number of entities per chunk, removing excess ones to prevent server lag caused by players trying to overload chunks.
+    overflow_purge: # 溢出清理会限制每个区块的实体数量，移除超出的实体，防止玩家通过堆叠实体使区块过载从而造成卡顿。
       enabled: false
-      interval: 30 # An interval in seconds that defines how often the excess entities in a chunk will be removed (per cycle)
-      limit_multiplier: 1.5 # Limit multiplier to not remove too many mobs
+      interval: 30 # 周期（秒）：每次循环中清理超出实体的频率
+      limit_multiplier: 1.5 # 限制倍率，避免移除过多实体
       types:
         creatures: true
         items: false
         vehicles: true
         projectiles: true
-        named: false # If "false" overflow purge won't remove entities with a custom name
+        named: false # 若为 "false"，溢出清理不会移除带自定义名称的实体

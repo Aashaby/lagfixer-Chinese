@@ -5,27 +5,27 @@ HopperOptimizer:
   values:
     smart_throttling: true
 
-    # Enable chunk-based hopper limiting
+    # 启用基于区块的漏斗数量限制
     chunk_limit:
       enabled: false
-      # Maximum hoppers allowed per chunk
+      # 每个区块允许的最大漏斗数量
       limit: 16
 
-    # Optimizes hoppers that have nothing to transfer
+    # 优化“没有物品可传输”的漏斗
     empty_hopper_optimization:
       enabled: true
-      # How long to wait before checking empty hoppers again (milliseconds)
+      # 再次检查空漏斗前的等待时间（毫秒）
       empty_check_delay: 100
 
-    # Optimizes hoppers that can't transfer because destination is full
+    # 优化“目标容器已满导致无法传输”的漏斗
     full_hopper_optimization:
       enabled: true
-      # How long to wait before checking full hoppers again (milliseconds)
+      # 再次检查满漏斗前的等待时间（毫秒）
       full_check_delay: 80
 
-    # How often to run hopper optimization checks (milliseconds)
+    # 执行漏斗优化检查的间隔（毫秒）
     hopper_check_interval: 2000
 
-    # How long before a hopper is considered "inactive" (milliseconds)
-    # Inactive hoppers are checked less frequently
+    # 多久后将漏斗视为“非活跃”（毫秒）
+    # 非活跃漏斗将降低检查频率
     inactive_hopper_delay: 30000

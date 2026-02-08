@@ -1,16 +1,16 @@
-# A server restart is required to apply changes.
-# Optimizes collisions by replacing them with new, optimized objects.
+# 应用更改需要重启服务器。
+# 通过将碰撞替换为新的优化对象来提升性能。
 VehicleMotionReducer:
   enabled: false
-  worlds: # Use '*' to enable for all worlds.
+  worlds: # 使用 '*' 对所有世界启用。
     - '*'
   values:
-    # Experimental feature
+    # 实验性功能
     force_load: false
 
     minecart:
       enabled: true
-      # Removes naturally generated minecarts, useful for servers with frequent chunk generation.
+      # 移除自然生成的矿车，适用于频繁生成新区块的服务器。
       remove_chest: false
 
     boat:
