@@ -83,10 +83,20 @@ jobs:
         run: ./gradlew clean build --no-daemon --stacktrace --build-cache
         continue-on-error: true  # 即使测试失败也继续执行
 
+      - name: List build outputs
+        if: success() || failure()
+        shell: bash
+        run: |
+          echo "=== root build/libs ==="
+          ls -la build/libs || true
+          echo "=== all build/libs ==="
+          find . -path "*/build/libs/*.jar" -maxdepth 6 -print || true
+
       - name: Upload artifact
         if: success() || failure()  # 无论构建成功还是失败都上传
         uses: actions/upload-artifact@v4
         with:
           name: LagFixer
           path: |
+            build/libs/*.jar
             **/build/libs/*.jar
