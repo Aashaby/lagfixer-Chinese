@@ -141,7 +141,7 @@ public class MapCommand extends CommandManager.Subcommand {
             meta.setDisplayName(MessageUtils.fixColors(null, "&e⚡ &f服务器监视器！ &e⚡"));
             this.mapItem.setItemMeta(meta);
 
-            this.mapView.getRenderers().removeIf(renderer -> renderer != null && renderer.getClass() == MapHandler.class);
+            this.mapView.getRenderers().clear();
             this.mapView.addRenderer(this);
         }
 
