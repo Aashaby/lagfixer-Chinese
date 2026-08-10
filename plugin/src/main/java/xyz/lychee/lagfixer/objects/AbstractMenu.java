@@ -41,7 +41,6 @@ public abstract class AbstractMenu implements Listener {
     private final BukkitTask task;
     private final HashMap<Integer, ItemClickEvent> clicks = new HashMap<>();
     private boolean updated = false;
-    // 返回按钮（实例化，不再静态）
     private ItemStack backItem;
 
     public AbstractMenu(LagFixer plugin, int size, String title, int interval, boolean async) {
@@ -53,7 +52,6 @@ public abstract class AbstractMenu implements Listener {
             }
         }, 1L, interval, TimeUnit.SECONDS) : null;
 
-        // 如果存在上级菜单，则初始化本地化的返回按钮
         if (this.previousMenu() != null) {
             this.backItem = ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjM0OTM5ZDI2NDQ0YTU3MzI3ZjA2NGMzOTI4ZGE2MWYzNmNhZjYyMmRlYmU3NGMzM2Y4ZjhhMzZkYTIyIn19fQ==")
                     .setName(Language.getLocalized("menu_back_name"))
@@ -108,8 +106,8 @@ public abstract class AbstractMenu implements Listener {
                 return;
             }
 
-            // 使用实例的 backItem 判断
-            if (click.equals(this.backItem)) {
+            // 增加空指针保护
+            if (this.backItem != null && click.equals(this.backItem)) {
                 AbstractMenu back = this.previousMenu();
                 if (back != null) {
                     e.getWhoClicked().openInventory(back.getInv());
@@ -132,7 +130,6 @@ public abstract class AbstractMenu implements Listener {
             this.inv.setItem(i, AbstractMenu.getBorder());
             this.inv.setItem(i + 8, AbstractMenu.getBorder());
         }
-        // 使用实例的 backItem
         if (this.previousMenu() != null && this.backItem != null) {
             this.inv.setItem(size - 1, this.backItem);
         }
