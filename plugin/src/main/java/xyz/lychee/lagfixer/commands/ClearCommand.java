@@ -1,11 +1,15 @@
 package xyz.lychee.lagfixer.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.apache.commons.lang3.stream.Streams;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Projectile;
 import org.jetbrains.annotations.NotNull;
+import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.CommandManager;
 import xyz.lychee.lagfixer.managers.ModuleManager;
 import xyz.lychee.lagfixer.modules.WorldCleanerModule;
@@ -31,58 +35,62 @@ public class ClearCommand extends CommandManager.Subcommand {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (args.length < 1) {
-            MessageUtils.sendMessage(true, sender, "&7Usage: &f/lagfixer clear <items|creatures|projectiles>");
+            Component usage = Language.getMainValue("clear_usage", true);
+            if (usage != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(usage);
             return true;
         }
 
         WorldCleanerModule module = ModuleManager.getInstance().get(WorldCleanerModule.class);
         if (module == null || !module.isLoaded()) {
-            MessageUtils.sendMessage(true, sender, "&7WorldCleaner module is disabled!");
+            Component disabled = Language.getMainValue("clear_disabled", true);
+            if (disabled != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(disabled);
             return true;
         }
 
         AtomicInteger ai = new AtomicInteger();
-
         String type = args[0].toLowerCase();
-        return switch (type) {
+
+        switch (type) {
             case "items" -> {
                 module.getAllowedWorlds()
                         .stream()
                         .flatMap(w -> w.getEntitiesByClass(Item.class).stream())
                         .filter(module::clearItem)
-                        .forEach(ent -> {
-                            ent.remove();
-                            ai.incrementAndGet();
-                        });
-
-                yield MessageUtils.sendMessage(true, sender, "&7Successfully removed &e" + ai.get() + " &7items.");
+                        .forEach(ent -> { ent.remove(); ai.incrementAndGet(); });
+                Component msg = Language.getMainValue("clear_success_items", true,
+                        Placeholder.unparsed("count", String.valueOf(ai.get())));
+                if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
+                return true;
             }
             case "creatures" -> {
                 module.getAllowedWorlds()
                         .stream()
                         .flatMap(w -> w.getEntitiesByClass(Mob.class).stream())
                         .filter(module::clearCreature)
-                        .forEach(ent -> {
-                            ent.remove();
-                            ai.incrementAndGet();
-                        });
-
-                yield MessageUtils.sendMessage(true, sender, "&7Successfully removed &e" + ai.get() + " &7creatures.");
+                        .forEach(ent -> { ent.remove(); ai.incrementAndGet(); });
+                Component msg = Language.getMainValue("clear_success_creatures", true,
+                        Placeholder.unparsed("count", String.valueOf(ai.get())));
+                if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
+                return true;
             }
             case "projectiles" -> {
                 module.getAllowedWorlds()
                         .stream()
                         .flatMap(w -> w.getEntitiesByClass(Projectile.class).stream())
                         .filter(module::clearProjectile)
-                        .forEach(ent -> {
-                            ent.remove();
-                            ai.incrementAndGet();
-                        });
-
-                yield MessageUtils.sendMessage(true, sender, "&7Successfully removed &e" + ai.get() + " &7projectiles.");
+                        .forEach(ent -> { ent.remove(); ai.incrementAndGet(); });
+                Component msg = Language.getMainValue("clear_success_projectiles", true,
+                        Placeholder.unparsed("count", String.valueOf(ai.get())));
+                if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
+                return true;
             }
-            default -> MessageUtils.sendMessage(true, sender, "&7Invalid clear type: &f" + type);
-        };
+            default -> {
+                Component invalid = Language.getMainValue("clear_invalid_type", true,
+                        Placeholder.unparsed("type", type));
+                if (invalid != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(invalid);
+                return true;
+            }
+        }
     }
 
     @Override

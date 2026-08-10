@@ -78,5 +78,24 @@ public class Language {
         Component component = this.getComponent(key, prefix, placeholders);
         return component == null ? "Unknown value - " + key : MessageUtils.fixColors(null, Language.getSerializer().serialize(component));
     }
+
+    /**
+     * 快速获取本地化字符串（带占位符），自动转换为 Minecraft 颜色代码（§）
+     * @param key 语言键，位于 messages.Main 下
+     * @param placeholders MiniMessage 占位符
+     * @return 已转换颜色代码的字符串，若键不存在则返回 "§f" + key
+     */
+    public static String getLocalized(String key, TagResolver.Single... placeholders) {
+        Component comp = getMainValue(key, false, placeholders);
+        if (comp == null) return "§f" + key; // 安全回退
+        return MessageUtils.fixColors(null, getSerializer().serialize(comp));
+    }
+
+    /**
+     * 快速获取本地化字符串并包装为单行 List（用于 Lore）
+     */
+    public static List<String> getLocalizedLore(String key, TagResolver.Single... placeholders) {
+        return Collections.singletonList(getLocalized(key, placeholders));
+    }
 }
 

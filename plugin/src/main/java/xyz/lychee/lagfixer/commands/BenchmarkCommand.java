@@ -1,8 +1,12 @@
 package xyz.lychee.lagfixer.commands;
 
 import lombok.Data;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.CommandManager;
 import xyz.lychee.lagfixer.managers.ErrorsManager;
 import xyz.lychee.lagfixer.managers.SupportManager;
@@ -31,22 +35,31 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
     @Override
     public boolean execute(@NotNull org.bukkit.command.CommandSender sender, @NotNull String[] args) {
         if (this.benchmark) {
-            return MessageUtils.sendMessage(true, sender, "&7Benchmark is running, wait for results in console!");
+            Component msg = Language.getMainValue("benchmark_running", true);
+            if (msg != null) this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(msg);
+            return true;
         }
 
         ResourceMonitor monitor = SupportManager.getInstance().getResourceMonitor();
         if (monitor.getMspt() > 10.0) {
-            return MessageUtils.sendMessage(true, sender, "&7Server MSPT is too &chigh&7, the result may be incorrect!");
+            Component msg = Language.getMainValue("benchmark_high_mspt", true);
+            if (msg != null) this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(msg);
+            return true;
         }
 
         long availableRam = monitor.getRamFree() + (monitor.getRamMax() - monitor.getRamTotal());
         if (availableRam < 2048) {
-            return MessageUtils.sendMessage(true, sender, "&7Server available RAM is too low, you need &c" + availableRam + "&8/&c2048MB");
+            Component msg = Language.getMainValue("benchmark_low_ram", true,
+                    Placeholder.unparsed("available", Long.toString(availableRam)));
+            if (msg != null) this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(msg);
+            return true;
         }
 
         BukkitTask task = SupportManager.getInstance().getFork().runTimer(true, () -> {
             if (this.benchmark) {
-                MessageUtils.sendMessage(true, sender, "&7Async benchmark in progress, wait for results...");
+                Component progress = Language.getMainValue("benchmark_async_progress", true);
+                if (progress != null)
+                    this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(progress);
             }
         }, 1, 2, TimeUnit.SECONDS);
 
@@ -63,10 +76,17 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
                 String result = b.getResult().toString();
                 ErrorsManager.getInstance().sendBenchmark(b);
 
-                MessageUtils.sendMessage(true, sender, "&7Benchmark done in &f" + t.stop() + "&7, results:&f" + result);
+                Component doneMsg = Language.getMainValue("benchmark_done", true,
+                        Placeholder.unparsed("time", t.stop().toString()),
+                        Placeholder.unparsed("result", result));
+                if (doneMsg != null)
+                    this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(doneMsg);
                 this.getCommandManager().getPlugin().getLogger().info(result);
             } catch (Exception e) {
-                MessageUtils.sendMessage(true, sender, "&cBenchmark error: " + e.getMessage());
+                Component errorMsg = Language.getMainValue("benchmark_error", true,
+                        Placeholder.unparsed("error", e.getMessage()));
+                if (errorMsg != null)
+                    this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(errorMsg);
             }
             this.benchmark = false;
         });
@@ -80,7 +100,11 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
     public Benchmark runBenchmarks(int warmup, int cpu, int arrayLength, int memoryPasses) {
         Benchmark benchmark = new Benchmark(cpu);
 
-        benchmark.getResult().append("\n \n&8&m    &r&8[ &eLagFixer Advanced CPU Benchmark &8]&m    &r\n ");
+        // CPU header
+        Component cpuHeader = Language.getMainValue("benchmark_cpu_header", false);
+        if (cpuHeader != null)
+            benchmark.getResult().append(Language.getSerializer().serialize(cpuHeader));
+
         for (int i = 0; i < warmup; i++) {
             cpuTest(1_000_000);
         }
@@ -102,10 +126,18 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
             checksum += result;
         }
 
-        benchmark.getResult()
-                .append("\n &8• &fAverage performance: &e").append(totalScore / cpu).append(" Gop/s")
-                .append("\n &8• &fBest time: &e").append(bestScore / 1_000_000_000D).append(" s")
-                .append("\n &8• &fWorst time: &e").append(worstScore / 1_000_000_000D).append(" s");
+        // 平均性能
+        Component avgComp = Language.getMainValue("benchmark_average", false,
+                Placeholder.unparsed("score", String.format("%.2f", totalScore / cpu)));
+        if (avgComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(avgComp));
+
+        Component bestComp = Language.getMainValue("benchmark_best", false,
+                Placeholder.unparsed("time", String.format("%.3f", bestScore / 1_000_000_000D)));
+        if (bestComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(bestComp));
+
+        Component worstComp = Language.getMainValue("benchmark_worst", false,
+                Placeholder.unparsed("time", String.format("%.3f", worstScore / 1_000_000_000D)));
+        if (worstComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(worstComp));
 
         benchmark.setCpu_checksum(checksum);
         benchmark.setTotalScore(totalScore / cpu);
@@ -113,7 +145,8 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
         benchmark.setWorstScore(worstScore);
 
         // RAM Benchmark
-        benchmark.getResult().append("\n \n&8&m    &r&8[ &eLagFixer Advanced RAM Benchmark &8]&m    &r\n ");
+        Component ramHeader = Language.getMainValue("benchmark_ram_header", false);
+        if (ramHeader != null) benchmark.getResult().append(Language.getSerializer().serialize(ramHeader));
 
         long[] array = new long[arrayLength];
         int[] randomIndices = new int[arrayLength];
@@ -132,8 +165,10 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
             }
             writeTime += System.nanoTime() - start;
         }
-        double writeSpeed = (arrayLength * 4D * memoryPasses) / (1024D * 1024D) / (writeTime / 1_000_000_000D);
-        benchmark.getResult().append(String.format("\n &8• &fSequential write: &e%.2f MB/s", writeSpeed));
+        double writeSpeed = (arrayLength * 4L * memoryPasses) / (1024D * 1024D) / (writeTime / 1_000_000_000D);
+        Component writeComp = Language.getMainValue("benchmark_write_speed", false,
+                Placeholder.unparsed("speed", String.format("%.2f", writeSpeed)));
+        if (writeComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(writeComp));
         benchmark.setWriteSpeed(writeSpeed);
 
         // Sequential Read
@@ -146,8 +181,10 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
             }
             readTime += System.nanoTime() - start;
         }
-        double readSpeed = (arrayLength * 4D * memoryPasses) / (1024D * 1024D) / (readTime / 1_000_000_000D);
-        benchmark.getResult().append(String.format("\n &8• &fSequential read: &e%.2f MB/s", readSpeed));
+        double readSpeed = (arrayLength * 4L * memoryPasses) / (1024D * 1024D) / (readTime / 1_000_000_000D);
+        Component readComp = Language.getMainValue("benchmark_read_speed", false,
+                Placeholder.unparsed("speed", String.format("%.2f", readSpeed)));
+        if (readComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(readComp));
         benchmark.setReadSpeed(readSpeed);
 
         // Random Access
@@ -160,8 +197,10 @@ public class BenchmarkCommand extends CommandManager.Subcommand {
             }
             randomTime += System.nanoTime() - start;
         }
-        double randomSpeed = (arrayLength * 4D * memoryPasses) / (1024D * 1024D) / (randomTime / 1_000_000_000D);
-        benchmark.getResult().append(String.format("\n &8• &fRandom access: &e%.2f MB/s\n ", randomSpeed));
+        double randomSpeed = (arrayLength * 4L * memoryPasses) / (1024D * 1024D) / (randomTime / 1_000_000_000D);
+        Component randomComp = Language.getMainValue("benchmark_random_speed", false,
+                Placeholder.unparsed("speed", String.format("%.2f", randomSpeed)));
+        if (randomComp != null) benchmark.getResult().append("\n &8• ").append(Language.getSerializer().serialize(randomComp));
         benchmark.setRandomSpeed(randomSpeed);
 
         return benchmark;

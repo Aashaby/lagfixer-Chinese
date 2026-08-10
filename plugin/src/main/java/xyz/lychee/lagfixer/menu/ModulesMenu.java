@@ -1,5 +1,6 @@
 package xyz.lychee.lagfixer.menu;
 
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,8 @@ import java.util.List;
 
 public class ModulesMenu extends AbstractMenu {
     public ModulesMenu(LagFixer plugin, int size, String title) {
-        super(plugin, size, title, 20, true);
+        super(plugin, size, Language.getLocalized("menu_modules_title",
+                Placeholder.unparsed("version", plugin.getDescription().getVersion())), 20, true);
 
         this.surroundInventory();
         this.fillInventory();
@@ -32,15 +34,26 @@ public class ModulesMenu extends AbstractMenu {
 
             ItemBuilder ib = module.getBaseSkull().copy();
             this.itemClickEvent(slot, () -> {
-                ArrayList<String> lore = new ArrayList<>();
+                List<String> lore = new ArrayList<>();
 
-                lore.add(" &8{*} &7Status: " + (module.isLoaded() ? "&a&lENABLED" : "&c&lDISABLED"));
-                lore.add(" &8{*} &7Customizable values: &e" + module.getSection().getValues(true).values().stream().filter(obj -> !(obj instanceof ConfigurationSection)).count());
-                lore.add(" &8{*} &7Performance: " + Language.getSerializer().serialize(module.getImpact().getComponent()));
+                String statusKey = module.isLoaded() ? "menu_modules_lore_status_enabled" : "menu_modules_lore_status_disabled";
+                String status = Language.getLocalized(statusKey);
+                lore.add(Language.getLocalized("menu_modules_lore_status",
+                        Placeholder.unparsed("status", status)));
+
+                lore.add(Language.getLocalized("menu_modules_lore_values",
+                        Placeholder.unparsed("count", String.valueOf(
+                                module.getSection().getValues(true).values().stream()
+                                        .filter(obj -> !(obj instanceof ConfigurationSection)).count()
+                        ))));
+
+                lore.add(Language.getLocalized("menu_modules_lore_performance",
+                        Placeholder.unparsed("performance",
+                                Language.getSerializer().serialize(module.getImpact().getComponent()))));
                 lore.add("");
-                lore.add("&b&nClick to modify configuration!");
+                lore.add(Language.getLocalized("menu_modules_lore_click"));
                 lore.add("");
-                lore.add("&eDescription:");
+                lore.add(Language.getLocalized("menu_modules_lore_description"));
 
                 for (String line : module.getDescription()) {
                     StringBuilder lineBuilder = new StringBuilder(" &8{*} &7");
@@ -79,4 +92,3 @@ public class ModulesMenu extends AbstractMenu {
         return MenuCommand.getInstance().getMainMenu();
     }
 }
-

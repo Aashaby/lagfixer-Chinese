@@ -57,14 +57,8 @@ public class MapCommand extends CommandManager.Subcommand {
     @Override
     public boolean execute(@NotNull org.bukkit.command.CommandSender sender, @NotNull String[] args) {
         if (this.mapHandler == null) {
-            MessageUtils.sendMessage(true, sender,
-                    """
-                            &7The map is currently unavailable.
-                            You need to add the &e&n-Djava.awt.headless=true&7 flag when starting the application to resolve the issue.
-                            This will enable headless mode and avoid the X11 display connection problem.
-                            Please restart the server with this flag and check if the issue persists.
-                            """
-            );
+            Component unavailable = Language.getMainValue("map_unavailable", true);
+            if (unavailable != null) this.getPlugin().getAudiences().sender(sender).sendMessage(unavailable);
             return false;
         }
 

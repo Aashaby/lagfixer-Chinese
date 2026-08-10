@@ -1,12 +1,15 @@
 package xyz.lychee.lagfixer.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.CommandManager;
 import xyz.lychee.lagfixer.managers.SupportManager;
 import xyz.lychee.lagfixer.objects.ISupportNms;
-import xyz.lychee.lagfixer.utils.MessageUtils;
 
 public class PingCommand extends CommandManager.Subcommand {
     public PingCommand(CommandManager commandManager) {
@@ -27,10 +30,15 @@ public class PingCommand extends CommandManager.Subcommand {
         if (args.length > 0) {
             Player player = Bukkit.getPlayer(args[0]);
             if (player == null) {
-                return MessageUtils.sendMessage(true, sender, "&7Player not found on the server");
+                Component notFound = Language.getMainValue("ping_player_not_found", true);
+                if (notFound != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(notFound);
+                return true;
             }
-
-            return MessageUtils.sendMessage(true, sender, "&7" + player.getDisplayName() + "'s ping is &e" + nms.getPlayerPing(player) + "&7ms");
+            Component msg = Language.getMainValue("ping_result", true,
+                    Placeholder.unparsed("player", player.getDisplayName()),
+                    Placeholder.unparsed("ping", String.valueOf(nms.getPlayerPing(player))));
+            if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
+            return true;
         }
 
         double averagePing = Bukkit.getOnlinePlayers()
@@ -38,6 +46,9 @@ public class PingCommand extends CommandManager.Subcommand {
                 .mapToInt(nms::getPlayerPing)
                 .average()
                 .orElse(-1D);
-        return MessageUtils.sendMessage(true, sender, "&7Average players ping: &e" + averagePing);
+        Component msg = Language.getMainValue("ping_average", true,
+                Placeholder.unparsed("average", String.format("%.2f", averagePing)));
+        if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
+        return true;
     }
 }

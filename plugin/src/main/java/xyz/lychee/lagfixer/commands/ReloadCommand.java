@@ -1,7 +1,10 @@
 package xyz.lychee.lagfixer.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.jetbrains.annotations.NotNull;
 import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.CommandManager;
 import xyz.lychee.lagfixer.managers.ConfigManager;
 import xyz.lychee.lagfixer.managers.ModuleManager;
@@ -26,7 +29,9 @@ public class ReloadCommand extends CommandManager.Subcommand {
     @Override
     public boolean execute(@NotNull org.bukkit.command.CommandSender sender, @NotNull String[] args) {
         if (this.reload) {
-            return MessageUtils.sendMessage(true, sender, "&7Reload is running, wait for results in console!");
+            Component running = Language.getMainValue("reload_running", true);
+            if (running != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(running);
+            return true;
         }
 
         this.reload = true;
@@ -68,15 +73,9 @@ public class ReloadCommand extends CommandManager.Subcommand {
                 }
             });
 
-            MessageUtils.sendMessage(true, sender, """
-                    &7Reloaded modules configurations in &f%s&7.
-                    
-                     &7Working methods to apply all changes:
-                      &8{*} &7Server restart (&frecommended&7)
-                      &8{*} &7All plugins reload, command: &f/reload confirm
-                      &8{*} &7Plugman reload, command: &f/plugman reload LagFixer
-                    """.formatted(t.stop())
-            );
+            Component done = Language.getMainValue("reload_done", true,
+                    Placeholder.unparsed("time", t.stop().toString()));
+            if (done != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(done);
             this.reload = false;
         });
         thread.setName("LagFixer Reload");

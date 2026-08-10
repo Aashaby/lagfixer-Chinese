@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.SupportManager;
 import xyz.lychee.lagfixer.utils.ItemBuilder;
 
@@ -29,12 +30,10 @@ public abstract class AbstractMenu implements Listener {
     private static final @Getter ItemStack filler = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName("&8#").build();
     private static final @Getter ItemStack disabled;
     private static final @Getter ItemStack enabled;
-    private static final @Getter ItemStack back;
 
     static {
         enabled = ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTkwNzkzZjU2NjE2ZjEwMTUwMmRlMWQzNGViMjU0NGY2MDdkOTg5MDBlMzY5OTM2OTI5NTMxOWU2MzBkY2Y2ZCJ9fX0=").setName("&a&lENABLED!").setLore(" &8{*} &7Click to &cdisable &7this module!").build();
         disabled = ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTRiZDlhNDViOTY4MWNlYTViMjhjNzBmNzVhNjk1NmIxZjU5NGZlYzg0MGI5NjA3Nzk4ZmIxZTcwNzc2NDQzMCJ9fX0=").setName("&c&lDISABLED!").setLore(" &8{*} &7Click to &aenable &7this module!").build();
-        back = ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjM0OTM5ZDI2NDQ0YTU3MzI3ZjA2NGMzOTI4ZGE2MWYzNmNhZjYyMmRlYmU3NGMzM2Y4ZjhhMzZkYTIyIn19fQ==").setName("&3&lPREVIOUS MENU!").setLore(" &8{*} &7Click to &3return &7to previous menu!").build();
     }
 
     private final LagFixer plugin;
@@ -42,6 +41,8 @@ public abstract class AbstractMenu implements Listener {
     private final BukkitTask task;
     private final HashMap<Integer, ItemClickEvent> clicks = new HashMap<>();
     private boolean updated = false;
+    // 返回按钮（实例化，不再静态）
+    private ItemStack backItem;
 
     public AbstractMenu(LagFixer plugin, int size, String title, int interval, boolean async) {
         this.plugin = plugin;
@@ -51,6 +52,14 @@ public abstract class AbstractMenu implements Listener {
                 this.updateAll();
             }
         }, 1L, interval, TimeUnit.SECONDS) : null;
+
+        // 如果存在上级菜单，则初始化本地化的返回按钮
+        if (this.previousMenu() != null) {
+            this.backItem = ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjM0OTM5ZDI2NDQ0YTU3MzI3ZjA2NGMzOTI4ZGE2MWYzNmNhZjYyMmRlYmU3NGMzM2Y4ZjhhMzZkYTIyIn19fQ==")
+                    .setName(Language.getLocalized("menu_back_name"))
+                    .setLore(Language.getLocalized("menu_back_lore"))
+                    .build();
+        }
     }
 
     public void updateAll() {
@@ -99,7 +108,8 @@ public abstract class AbstractMenu implements Listener {
                 return;
             }
 
-            if (click.equals(AbstractMenu.getBack())) {
+            // 使用实例的 backItem 判断
+            if (click.equals(this.backItem)) {
                 AbstractMenu back = this.previousMenu();
                 if (back != null) {
                     e.getWhoClicked().openInventory(back.getInv());
@@ -122,8 +132,9 @@ public abstract class AbstractMenu implements Listener {
             this.inv.setItem(i, AbstractMenu.getBorder());
             this.inv.setItem(i + 8, AbstractMenu.getBorder());
         }
-        if (this.previousMenu() != null) {
-            this.inv.setItem(size - 1, AbstractMenu.getBack());
+        // 使用实例的 backItem
+        if (this.previousMenu() != null && this.backItem != null) {
+            this.inv.setItem(size - 1, this.backItem);
         }
     }
 
@@ -142,4 +153,3 @@ public abstract class AbstractMenu implements Listener {
         private final Consumer<InventoryClickEvent> eventConsumer;
     }
 }
-

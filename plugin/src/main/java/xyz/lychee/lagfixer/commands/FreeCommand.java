@@ -1,10 +1,13 @@
 package xyz.lychee.lagfixer.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import xyz.lychee.lagfixer.LagFixer;
+import xyz.lychee.lagfixer.Language;
 import xyz.lychee.lagfixer.managers.CommandManager;
 import xyz.lychee.lagfixer.managers.SupportManager;
-import xyz.lychee.lagfixer.utils.MessageUtils;
 
 import java.lang.management.ManagementFactory;
 
@@ -27,7 +30,8 @@ public class FreeCommand extends CommandManager.Subcommand {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (this.explicitGCDisabled) {
-            MessageUtils.sendMessage(true, sender, "&7Unable to free RAM, you need to remove jvm argument: &e&n-XX:+DisableExplicitGC&7!");
+            Component msg = Language.getMainValue("free_disabled", true);
+            if (msg != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(msg);
             return false;
         }
 
@@ -46,12 +50,15 @@ public class FreeCommand extends CommandManager.Subcommand {
 
             long diff = before - after;
             if (diff <= 0) {
-                MessageUtils.sendMessage(true, sender, "&7No memory found to clear!");
+                Component none = Language.getMainValue("free_no_memory", true);
+                if (none != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(none);
                 return;
             }
 
             long freedMB = diff / (1024 * 1024);
-            MessageUtils.sendMessage(true, sender, "&7Successfully freed &e" + freedMB + " &7MB of memory.");
+            Component success = Language.getMainValue("free_success", true,
+                    Placeholder.unparsed("mb", String.valueOf(freedMB)));
+            if (success != null) LagFixer.getInstance().getAudiences().sender(sender).sendMessage(success);
         });
         return true;
     }
