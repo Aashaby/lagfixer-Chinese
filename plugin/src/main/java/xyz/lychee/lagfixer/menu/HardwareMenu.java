@@ -44,7 +44,6 @@ public class HardwareMenu extends AbstractMenu {
 
         this.loadOrCreateHardwareData(plugin);
 
-        // 初始化四个物品
         this.i1 = createSkullItem("menu_hardware_item_network",
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTJiMTcxMmI5MDdjZTZiMTQwMmVhYWMyOGVjMjRhNGQ5NTU2OGY0YWI4N2U1OTc5ODBjMTViMjJiYmJkN2E1In19fQ==");
         this.i2 = createSkullItem("menu_hardware_item_processor",
@@ -54,10 +53,9 @@ public class HardwareMenu extends AbstractMenu {
         this.i4 = createSkullItem("menu_hardware_item_storage",
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjg5MWFmZDM5ZTJlNjczOGJjNmE4Yzg4YzI0OWZkYmNmNGE0NWM0YTI0MjQ3ZjFkMTBiYWUwYzY0ZDk5OTFlMSJ9fX0=");
 
-        this.surroundInventory();
+        this.surroundInventory();  // ← 父类会处理返回按钮
         this.fillButtons();
 
-        // 警告物品
         this.getInv().setItem(11,
                 ItemBuilder.createSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWY0NDZhOGY5Mjg0YzYyY2Y4ZDQ5MWZiZGIzMzhmZDM5ZWJiZWJlMzVlOTU5YzJmYzRmNzg2YzY3NTIyZWZiIn19fQ==")
                         .setName(Language.getLocalized("menu_hardware_warning_name"))
@@ -69,7 +67,9 @@ public class HardwareMenu extends AbstractMenu {
                                 Language.getLocalized("menu_hardware_warning_lore_4")
                         ).build()
         );
-        this.getInv().setItem(size - 1, ConfigMenu.getBack());
+        // 删除这一行：this.getInv().setItem(size - 1, ConfigMenu.getBack());
+        // 因为父类的 surroundInventory 已经设置了返回按钮
+
         this.fillInventory();
     }
 
