@@ -58,7 +58,10 @@ public class MapCommand extends CommandManager.Subcommand {
     public boolean execute(@NotNull org.bukkit.command.CommandSender sender, @NotNull String[] args) {
         if (this.mapHandler == null) {
             Component unavailable = Language.getMainValue("map_unavailable", true);
-            if (unavailable != null) this.getPlugin().getAudiences().sender(sender).sendMessage(unavailable);
+            if (unavailable != null) {
+                // 修正点：使用 getCommandManager().getPlugin()
+                this.getCommandManager().getPlugin().getAudiences().sender(sender).sendMessage(unavailable);
+            }
             return false;
         }
 
@@ -74,6 +77,7 @@ public class MapCommand extends CommandManager.Subcommand {
         return true;
     }
 
+    // ===================== 内部类 MapHandler 完全不变 =====================
     private static class MapHandler extends MapRenderer {
         private static final int MAP_SIZE = 128;
         private static final int PADDING = 5;
