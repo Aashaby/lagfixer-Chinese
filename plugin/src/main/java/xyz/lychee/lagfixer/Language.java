@@ -89,7 +89,7 @@ public class Language {
      */
     public static String getLocalized(String key, TagResolver.Single... placeholders) {
         Component comp = getMainValue(key, false, placeholders);
-        if (comp == null) return "§f" + key; // 安全回退
+        if (comp == null) return "§f" + key;
         return MessageUtils.fixColors(null, getSerializer().serialize(comp));
     }
 
