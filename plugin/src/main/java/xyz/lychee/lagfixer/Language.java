@@ -11,7 +11,9 @@ import xyz.lychee.lagfixer.managers.ConfigManager;
 import xyz.lychee.lagfixer.objects.AbstractModule;
 import xyz.lychee.lagfixer.utils.MessageUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -98,4 +100,3 @@ public class Language {
         return Collections.singletonList(getLocalized(key, placeholders));
     }
 }
-
