@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     tags: [ "*" ]
   pull_request:
-  workflow_dispatch:   # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,14 +14,14 @@ jobs:
       version: ${{ steps.get_version.outputs.version }}
 
     steps:
-      - name: Checkout this repository (just to have a workspace)
+      - name: Checkout this repository (workspace)
         uses: actions/checkout@v4
 
       - name: Checkout lajczik/lagfixer
         uses: actions/checkout@v4
         with:
           repository: lajczik/lagfixer
-          ref: main                     # 可以改成其他分支或 tag
+          ref: main
           path: lagfixer
 
       - name: Cache Maven local (Spigot 1.16.5)
@@ -33,14 +33,14 @@ jobs:
             ~/.m2/repository/net/minecraft
           key: m2-${{ runner.os }}-spigot-1.16.5-v1
 
-      - name: Set up JDK 11 (for BuildTools 1.16.5)
+      - name: Set up JDK 11 (BuildTools)
         if: steps.cache-spigot.outputs.cache-hit != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 11
 
-      - name: Install Spigot 1.16.5 into Maven local (BuildTools)
+      - name: Install Spigot 1.16.5 into Maven local
         if: steps.cache-spigot.outputs.cache-hit != 'true'
         shell: bash
         run: |
@@ -59,9 +59,38 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x lagfixer/gradlew
 
-      - name: Build and test with Gradle (including shadowJar)
+      - name: Build all modules (no shadowJar needed)
         working-directory: lagfixer
-        run: ./gradlew clean build shadowJar --no-daemon --stacktrace --build-cache
+        run: ./gradlew clean build --no-daemon --stacktrace --build-cache
+
+      - name: Merge submodule jars into LagFixer-all.jar
+        working-directory: lagfixer
+        run: |
+          mkdir -p merged
+          # 先解压 plugin 以外的所有 jar（避免 plugin.yml 被提前覆盖）
+          echo "Extracting non-plugin modules..."
+          find . -path '*/build/libs/*.jar' \
+            ! -path '*/plugin/build/libs/*' \
+            ! -name '*-all.jar' \
+            -exec unzip -o -q {} -d merged/ \;
+
+          # 最后解压 plugin 模块的 jar，用主 plugin.yml 覆盖
+          echo "Extracting plugin module..."
+          PLUGIN_JAR=$(find . -path '*/plugin/build/libs/*.jar' ! -name '*-all.jar' -print -quit)
+          if [ -n "$PLUGIN_JAR" ]; then
+            unzip -o -q "$PLUGIN_JAR" -d merged/
+          else
+            echo "ERROR: plugin jar not found" >&2
+            exit 1
+          fi
+
+          # 打包成 all.jar 放到 lagfixer/build/libs 下，方便上传
+          cd merged
+          jar -cf LagFixer-all.jar *
+          mkdir -p ../build/libs
+          mv LagFixer-all.jar ../build/libs/
+          cd ..
+          rm -rf merged
 
       - name: Get project version
         id: get_version
