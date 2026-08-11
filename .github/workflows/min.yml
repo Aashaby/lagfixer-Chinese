@@ -1,0 +1,114 @@
+name: Build LagFixer
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "*" ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+      - name: Debug GitHub ref context
+        shell: bash
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          echo "ref_name=${{ github.ref_name }}"
+          echo "ref_type=${{ github.ref_type }}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Maven local (Spigot 1.16.5)
+        id: cache-spigot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository/org/spigotmc
+            ~/.m2/repository/net/minecraft
+          key: m2-${{ runner.os }}-spigot-1.16.5-v1
+
+      - name: Set up JDK 11 (for BuildTools 1.16.5)
+        if: steps.cache-spigot.outputs.cache-hit != 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Install Spigot 1.16.5 into Maven local (BuildTools)
+        if: steps.cache-spigot.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          mkdir -p buildtools
+          cd buildtools
+          curl -fsSL -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          java -jar BuildTools.jar --rev 1.16.5 --compile SPIGOT
+
+      - name: Set up JDK 21 (for Gradle and toolchains)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build and test with Gradle (including shadowJar)
+        run: ./gradlew clean build shadowJar --no-daemon --stacktrace --build-cache
+
+      - name: Get project version
+        id: get_version
+        run: |
+          VERSION=$(./gradlew -q properties --no-daemon | awk -F': ' '/^version: /{print $2; exit}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LagFixer
+          path: |
+            **/build/libs/*.jar
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: LagFixer
+          path: artifacts
+
+      - name: Validate release tag
+        shell: bash
+        run: |
+          VERSION="${{ needs.build.outputs.version }}"
+          REF_TAG="${{ github.ref_name }}"
+          if [ "$REF_TAG" != "$VERSION" ] && [ "$REF_TAG" != "v$VERSION" ]; then
+            echo "Tag '$REF_TAG' does not match Gradle version '$VERSION'" >&2
+            exit 1
+          fi
+
+      - name: Verify LagFixer artifacts exist
+        shell: bash
+        run: |
+          test -n "$(find artifacts -type f \( -name 'LagFixer*.jar' \) -print -quit)"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/**/LagFixer*.jar
